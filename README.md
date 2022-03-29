@@ -1,2 +1,2 @@
 # sql-lexer
-SQL 词法分析器
+简单的 SQL 词法分析器
