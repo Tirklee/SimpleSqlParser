@@ -1,20 +1,23 @@
 #ifndef LEXER_HPP__
 #define LEXER_HPP__
 
-#include <string>
 #include <memory>
+#include <vector>
+#include <string.h>
+#include "token.hpp"
 
 class Lexer
 {
 private:
-    std::string src; //  源码
+    char* src; //  源码
+    TokenType token_type;
     int token; // 当前的 token
-    int token_val; // token 的值
-    std::unique_ptr<int> symbols; // 符号表
+    TokenValue token_val;
+    std::vector<Symbol> symtab; // 符号表
 public:
     void next();
-    void run();
-    Lexer(std::string src);
+    void run(char* src);
+    Lexer();
     ~Lexer();
 };
 
