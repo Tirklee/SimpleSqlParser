@@ -15,7 +15,7 @@ void Lexer::next() {
             // 获取符号名
             char nameBuffer[100];
             nameBuffer[0] = token;
-            while((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z') || *src == '_') {
+            while((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z') || (*src >= '0' && *src <= '9') ||*src == '_') {
                 nameBuffer[src - last_pos] = *src;
                 src++;
             }
@@ -23,9 +23,16 @@ void Lexer::next() {
             // 从符号表中查找是否有对应的符号名
             for(auto sym: this->symtab) {
                 if(strcmp(sym.name, nameBuffer) == 0) {
-
+                    this->token_val.ptr = &sym;
+                    return;
                 }
             }
+            // 如果未发现的话则需要构建符号
+            Symbol symbol;
+            strcpy(symbol.name, nameBuffer);
+            symbol.type = TokenType::Idn;
+            symbol.value = 0.0;
+            return;
         }else if(token >= '0' && token <= '9') {
             this->token_val.value = (double)token - '0';
             while(*src >= '0' && *src <= '9') {
