@@ -5,6 +5,7 @@
 #include <vector>
 #include <string.h>
 #include "token.hpp"
+#include "symbol.hpp"
 
 class Lexer
 {
@@ -15,6 +16,7 @@ private:
     TokenValue token_val;
     std::vector<Symbol> symtab; // 符号表
 public:
+    void add_keywords();
     void next();
     void run(char* src);
     Lexer();

@@ -5,6 +5,20 @@ Lexer::Lexer(){}
 
 Lexer::~Lexer(){}
 
+void Lexer::add_keywords() {
+    const char* src = "SELECT FROM WHERE AS INSERT INTO VALUES \
+                UPDATE DELETE JOIN LEFT RIGHT MIN MAX AVG SUM \
+                UNION ALL GROUPBY HAVING DISTINCT ORDERBY TRUE FALSE \
+                IS NOT NULL";
+    this->src = (char*)src;
+    for(size_t i = 0; i < KEYWORD_SIZE; i++) {
+        this->next();
+        
+        this->symtab[this->symtab.size() - 1].type = keywords[i];
+    }
+    
+}
+
 // 获取下一个 token
 void Lexer::next() {
     char* last_pos;
@@ -27,11 +41,14 @@ void Lexer::next() {
                     return;
                 }
             }
+            printf("[Debug] next(): name: %s\n", nameBuffer);
             // 如果未发现的话则需要构建符号
             Symbol symbol;
             strcpy(symbol.name, nameBuffer);
             symbol.type = TokenType::Idn;
             symbol.value = 0.0;
+            this->symtab.push_back(symbol);
+            this->token_val.ptr = &this->symtab[this->symtab.size() - 1];
             return;
         }else if(token >= '0' && token <= '9') {
             this->token_val.value = (double)token - '0';
@@ -55,6 +72,9 @@ void Lexer::next() {
     }
 }
 
+void add_keywords() {
+
+}
 
 // 运行
 void Lexer::run(char* src) {
