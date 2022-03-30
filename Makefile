@@ -7,7 +7,7 @@ OBJS      	:= $(BUILD_DIR)/lexer.o \
 			   $(BUILD_DIR)/main.o
 
 CXX			:= g++
-CXXFLAGS  	:= -g -Wall -std=c++17
+CXXFLAGS  	:= -g -Wall -Werror -std=c++17
 
 .PHONY: build run clean
 

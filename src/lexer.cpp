@@ -8,8 +8,7 @@ Lexer::~Lexer(){}
 // 获取下一个 token
 void Lexer::next() {
     char* last_pos;
-    int hash;
-    while(token = *src) {
+    while((token = *src)) {
         ++src;
         if((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || token == '_') {
             last_pos = src - 1;
@@ -57,10 +56,13 @@ void Lexer::run(char* src) {
     while(this->token > 0) {
         switch(this->token_type) {
             case TokenType::Float: 
-                printf("Token Type: Float, Value: %d\n", this->token_val.value);
+                printf("Token Type: Float, Value: %lf\n", this->token_val.value);
                 break;
             case TokenType::Int:
-                printf("Token Type: Int, Value: %d\n", this->token_val.value);
+                printf("Token Type: Int, Value: %lf\n", this->token_val.value);
+                break;
+            default:
+                printf("[Error] Fail to find token\n");
         }
         this->next();
     }
