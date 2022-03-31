@@ -23,6 +23,7 @@ char* Lexer::lookupn(int size) {
     char* ptr = src - size;
     char* buf = new char[size + 5];
     memcpy(buf, ptr, size);
+    buf[size] = '\0';
     return buf;
 }
 
@@ -215,6 +216,15 @@ void Lexer::run(char* src) {
                 if(this->name.has_value()) {
                     printf("%s\t<IDN, %s>\n", this->name.value(), this->name.value());
                 }
+                break;
+            case TokenType::Lp:
+                printf("(\t<SE, 1>\n");
+                break;
+            case TokenType::Rp:
+                printf(")\t<SE, 2>\n");
+                break;
+            case TokenType::Comma:
+                printf(",\t<SE, 3>\n");
                 break;
             case TokenType::Equal:
                 printf("=\t<OP, 1>\n");
