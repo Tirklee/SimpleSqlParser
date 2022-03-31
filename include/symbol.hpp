@@ -3,11 +3,10 @@
 
 #include "token.hpp"
 struct Symbol {
-    // 符号类型: Num,
+    // Symbol Type: Int, Float, Str,...
     TokenType type;
     char name[MAX_NAME_SIZE];
     double value;
-    int levelNum;
 };
 
 #endif

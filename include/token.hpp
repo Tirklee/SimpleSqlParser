@@ -10,14 +10,19 @@
 struct Symbol;
 
 enum TokenType {
-    Int, Float, Idn, Str,
-    Eq, Ne, Lt, Le, Gt, Ge,
-    And, Or, Xor,
+    Int, Float, // 整数, 浮点数
+    Idn, // 标识符
+    Str, // 字符串
+    Equal, NonEqual, Less, LessEqual, Great, GreatEqual, SafeEqual,
+    And, And2, Or, Or2, Xor, // 逻辑运算符(AND, &&, OR, || , XOR)
+    Dot, // 属性运算符
+    Lp, Rp, Comma, // 界符((, ), ,)
+    // 关键字
     Select, From, Where, As, Insert, Into, Values,
     Update, Delete, Join, Left, Right, Min, Max, Avg, Sum,
     Union, All, GroupBy, Having, Distinct, OrderBy, True, False, 
-    Is, Not, Null
-
+    Is, Not, Null,
+    Invalid // 无效的 token
 };
 
 const TokenType keywords[] = {
@@ -53,7 +58,9 @@ const TokenType keywords[] = {
 
 struct TokenValue {
     double value; // token value, for Num
-    Symbol* ptr; // used when return a string or a symbol address for assignment
+    // used when return a string or a symbol address for assignment
+    Symbol* sym_ptr;
+    char* str_ptr;
 };
 
 #endif

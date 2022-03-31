@@ -9,7 +9,7 @@ OBJS      	:= $(BUILD_DIR)/lexer.o \
 CXX			:= g++
 CXXFLAGS  	:= -g -Wall -Werror -std=c++17
 
-.PHONY: build run clean
+.PHONY: run clean
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@$(CXX) $(CXXFLAGS) -I$(INCLUDE_DIR) -c $(SRC_DIR)/lexer.cpp -o $(BUILD_DIR)/lexer.o 
@@ -20,4 +20,4 @@ run: $(OBJS)
 	@./build/main
 
 clean:
-	@rm build/*.o
+	@rm $(BUILD_DIR)/*.o $(BUILD_DIR)/main
