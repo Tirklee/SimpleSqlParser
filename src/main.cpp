@@ -17,6 +17,8 @@ int main(int argc, char** argv) {
     src = "= > >= < <= <=> != && || .";
     lexer.run((char*)src);
     printf("[Debug] Test String.\n");
-    src = "\"hello SQL lexer!\"";
+    src = "\"Hello SQL Lexer!\"";
+    lexer.run((char*)src);
+    src = "SELECT t.c FROM t WHERE t.a > 0";
     lexer.run((char*)src);
 }

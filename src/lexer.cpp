@@ -79,10 +79,13 @@ void Lexer::next() {
                 src++;
                 size++;
             }
+            // 将对应的字符串放入地址中并将其存入符号表中
             char* str = new char[size + 5];
             memcpy(str, src - size, size);
+            str[size] = '\0';
             this->token_type = TokenType::Str;
             this->token_val.str_ptr = str;
+            src++;
             return;
         }else if(token == '='){
             // 等于符号
@@ -142,6 +145,7 @@ void Lexer::next() {
         }else if(token == ' ' || token == '\t') {}
         else if(token == '\\'){}
         else{
+            this->token_type = TokenType::Invalid;
             printf("[Error] Unexpected token: %c\n", token);
         }
     }
@@ -160,7 +164,9 @@ void Lexer::run(char* src) {
                 printf("INT\t<INT, %d>\n", (int)this->token_val.value);
                 break;
             case TokenType::Str:
-                printf("Str\t<Str, %lu>\n", (size_t)this->token_val.str_ptr);
+                printf("STR\t<Str, 0x%lx>\n", (size_t)this->token_val.str_ptr);
+                printf("%s\n", (char*)this->token_val.str_ptr);
+                break;
             case TokenType::Equal:
                 printf("=\t<OP, 1>\n");
                 break;
@@ -199,8 +205,9 @@ void Lexer::run(char* src) {
                 break;
             case TokenType::Dot:
                 printf(".\t<OP, 13>\n");
+                break;
             case TokenType::Invalid:
-                printf("[Error] Unexpected token\n");
+                printf("[Error] Unexpected token: %c\n", token);
                 exit(-1);
             default:
                 printf("[Error] Fail to find token\n");
