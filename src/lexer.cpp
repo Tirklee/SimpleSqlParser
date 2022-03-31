@@ -8,7 +8,7 @@ Lexer::~Lexer(){}
 void Lexer::add_keywords() {
     const char* src = "SELECT FROM WHERE AS INSERT INTO VALUES \
                 UPDATE DELETE JOIN LEFT RIGHT MIN MAX AVG SUM \
-                UNION ALL GROUPBY HAVING DISTINCT ORDERBY TRUE FALSE \
+                UNION ALL GROUP BY HAVING DISTINCT ORDER BY TRUE FALSE \
                 IS NOT NULL AND OR XOR";
     this->src = (char*)src;
     for(size_t i = 0; i < KEYWORD_SIZE; i++) {
@@ -16,6 +16,21 @@ void Lexer::add_keywords() {
         this->symtab[this->symtab.size() - 1].type = keywords[i];
     }
     
+}
+
+// 向前查看 n 个字符, 用于对于有相同部分的标识符进行识别
+char* Lexer::lookupn(int size) {
+    char* ptr = src - size;
+    char* buf = new char[size + 5];
+    memcpy(buf, ptr, size);
+    return buf;
+}
+
+char* Lexer::lookdown(int size) {
+    char* buf = new char[size + 5];
+    memcpy(buf, src, size);
+    buf[size] = '\0';
+    return buf;
 }
 
 // 获取下一个 token
@@ -33,6 +48,17 @@ void Lexer::next() {
                 src++;
             }
             nameBuffer[src - last_pos] = 0;
+            if(strcmp(nameBuffer, "ORDER") == 0 || strcmp(nameBuffer, "GROUP") == 0) {
+                char* buf = this->lookdown(3);
+                if(strcmp(buf, " BY") == 0) {
+                    // 将指针向后移 3 位
+                    src += 3;
+                    memcpy(nameBuffer + (src - last_pos), buf, 3);
+                }else {
+                    this->token_type = TokenType::Invalid;
+                    return;
+                }
+            }
             // 从符号表中查找是否有对应的符号名
             for(auto sym: this->symtab) {
                 if(strcmp(sym.name, nameBuffer) == 0) {
@@ -151,6 +177,15 @@ void Lexer::next() {
         }else if(token == '.'){
             this->token_type = TokenType::Dot;
             return;
+        }else if(token == '('){
+            this->token = TokenType::Lp;
+            return;
+        }else if(token == ')'){
+            this->token = TokenType::Rp;
+            return;
+        }else if(this->token == ','){
+            this->token = TokenType::Comma;
+            return;
         }else if(token == ' ' || token == '\t') {}
         else if(token == '\\'){}
         else{
@@ -228,6 +263,78 @@ void Lexer::run(char* src) {
                 break;
             case TokenType::Where:
                 printf("WHERE\t<KW, 3>\n");
+                break;
+            case TokenType::As:
+                printf("AS\t<KW, 4>\n");
+                break;
+            case TokenType::Insert:
+                printf("INSERT\t<KW, 5>\n");
+                break;
+            case TokenType::Into:
+                printf("INTO\t<KW, 6>\n");
+                break;
+            case TokenType::Values:
+                printf("VALUES\t<KW, 7>\n");
+                break;
+            case TokenType::Update:
+                printf("UPDATE\t<KW, 8>\n");
+                break;
+            case TokenType::Delete:
+                printf("DELECTE\t<KW, 9>\n");
+                break;
+            case TokenType::Join:
+                printf("JOIN\t<KW, 10>\n");
+                break;
+            case TokenType::Left:
+                printf("LEFT\t<KW, 11>\n");
+                break;
+            case TokenType::Right:
+                printf("RIGHT\t<KW, 12>\n");
+                break;
+            case TokenType::Min:
+                printf("MIN\t<KW, 13>\n");
+                break;
+            case TokenType::Max:
+                printf("MAX\t<KW, 14>\n");
+                break;
+            case TokenType::Avg:
+                printf("AVG\t<KW, 15>\n");
+                break;
+            case TokenType::Sum:
+                printf("SUM\t<KW, 16>\n");
+                break;
+            case TokenType::Union:
+                printf("UNION\t<KW, 17>\n");
+                break;
+            case TokenType::All:
+                printf("ALL\t<KW, 19>\n");
+                break;
+            case TokenType::GroupBy:
+                printf("GROUP BY\t<KW, 19>\n");
+                break;
+            case TokenType::Having:
+                printf("HAVING\t<KW, 20>\n");
+                break;
+            case TokenType::Distinct:
+                printf("DISTINCT\t<KW, 21>\n");
+                break;
+            case TokenType::OrderBy:
+                printf("ORDER BY\t<KW, 22>\n");
+                break;
+            case TokenType::True:
+                printf("TRUE\t<KW, 23>\n");
+                break;
+            case TokenType::False:
+                printf("FALSE\t<KW, 24>\n");
+                break;
+            case TokenType::Is:
+                printf("IS\t<KW, 25>\n");
+                break;
+            case TokenType::Not:
+                printf("NOT\t<KW, 26>\n");
+                break;
+            case TokenType::Null:
+                printf("NULL\t<KW, 27>\n");
                 break;
             case TokenType::Invalid:
                 printf("[Error] Unexpected token: %c\n", token);

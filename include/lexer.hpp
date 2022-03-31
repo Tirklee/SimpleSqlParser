@@ -19,6 +19,8 @@ private:
     std::optional<char*> name;
 public:
     void add_keywords();
+    char* lookupn(int size);
+    char* lookdown(int size);
     void next();
     void run(char* src);
     Lexer();
