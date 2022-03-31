@@ -38,7 +38,7 @@ void Lexer::next() {
                 if(strcmp(sym.name, nameBuffer) == 0) {
                     this->token_val.sym_ptr = &sym;
                     this->token_type = sym.type;
-                    char* name = new char[100];
+                    char* name = new char[MAX_NAME_SIZE];
                     strcpy(name, nameBuffer);
                     this->name = std::make_optional(name);
                     return;
@@ -54,6 +54,10 @@ void Lexer::next() {
             symbol.value = 0.0;
             this->symtab.push_back(symbol);
             this->token_val.sym_ptr = &this->symtab[this->symtab.size() - 1];
+            this->token_type = TokenType::Idn;
+            char* name = new char[MAX_NAME_SIZE];
+            strcpy(name, nameBuffer);
+            this->name = std::make_optional(name);
             return;
         }else if(token >= '0' && token <= '9') {
             this->token_val.value = (double)token - '0';
@@ -221,6 +225,9 @@ void Lexer::run(char* src) {
                 break; 
             case TokenType::From:
                 printf("FROM\t<KW, 2>\n");
+                break;
+            case TokenType::Where:
+                printf("WHERE\t<KW, 3>\n");
                 break;
             case TokenType::Invalid:
                 printf("[Error] Unexpected token: %c\n", token);

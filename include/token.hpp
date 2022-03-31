@@ -13,7 +13,7 @@ enum TokenType {
     Int, Float, // 整数, 浮点数
     Idn, // 标识符
     Str, // 字符串
-    Equal, NonEqual, Less, LessEqual, Great, GreatEqual, SafeEqual,
+    Equal, NonEqual, Less, LessEqual, Great, GreatEqual, SafeEqual, // 比较运算符
     And, And2, Or, Or2, Xor, // 逻辑运算符(AND, &&, OR, || , XOR)
     Dot, // 属性运算符
     Lp, Rp, Comma, // 界符((, ), ,)
