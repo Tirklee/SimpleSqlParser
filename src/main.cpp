@@ -6,7 +6,6 @@
 
 int main(int argc, char** argv) {
     printf("Hello SQL Lexer!\n");
-
     Lexer lexer;
     // 将关键字加入到符号表中
     lexer.add_keywords();
@@ -14,7 +13,7 @@ int main(int argc, char** argv) {
     const char* src = "12345 67 55.8 564";
     lexer.run((char*)src);
     printf("[Debug] Test Operator.\n");
-    src = "= > >= < <= <=> != && || .";
+    src = "= > >= < <= <=> != && || . AND OR XOR";
     lexer.run((char*)src);
     printf("[Debug] Test String.\n");
     src = "\"Hello SQL Lexer!\"";

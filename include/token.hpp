@@ -5,7 +5,7 @@
 
 #define SYMBOL_SIZE (1024 * 8)
 #define MAX_NAME_SIZE 100
-#define KEYWORD_SIZE 27
+#define KEYWORD_SIZE 30
 
 struct Symbol;
 
@@ -52,7 +52,10 @@ const TokenType keywords[] = {
     TokenType::False,
     TokenType::Is,
     TokenType::Not,
-    TokenType::Null
+    TokenType::Null,
+    TokenType::And,
+    TokenType::Or,
+    TokenType::Xor
 };
 
 

@@ -9,11 +9,10 @@ void Lexer::add_keywords() {
     const char* src = "SELECT FROM WHERE AS INSERT INTO VALUES \
                 UPDATE DELETE JOIN LEFT RIGHT MIN MAX AVG SUM \
                 UNION ALL GROUPBY HAVING DISTINCT ORDERBY TRUE FALSE \
-                IS NOT NULL";
+                IS NOT NULL AND OR XOR";
     this->src = (char*)src;
     for(size_t i = 0; i < KEYWORD_SIZE; i++) {
         this->next();
-        
         this->symtab[this->symtab.size() - 1].type = keywords[i];
     }
     
@@ -38,10 +37,16 @@ void Lexer::next() {
             for(auto sym: this->symtab) {
                 if(strcmp(sym.name, nameBuffer) == 0) {
                     this->token_val.sym_ptr = &sym;
+                    this->token_type = sym.type;
+                    char* name = new char[100];
+                    strcpy(name, nameBuffer);
+                    this->name = std::make_optional(name);
                     return;
                 }
             }
+#ifdef DEBUG
             printf("[Debug] next(): name: %s\n", nameBuffer);
+#endif
             // 如果未发现的话则需要构建符号
             Symbol symbol;
             strcpy(symbol.name, nameBuffer);
@@ -167,6 +172,11 @@ void Lexer::run(char* src) {
                 printf("STR\t<Str, 0x%lx>\n", (size_t)this->token_val.str_ptr);
                 printf("%s\n", (char*)this->token_val.str_ptr);
                 break;
+            case TokenType::Idn:
+                if(this->name.has_value()) {
+                    printf("%s\t<IDN, %s>\n", this->name.value(), this->name.value());
+                }
+                break;
             case TokenType::Equal:
                 printf("=\t<OP, 1>\n");
                 break;
@@ -205,6 +215,12 @@ void Lexer::run(char* src) {
                 break;
             case TokenType::Dot:
                 printf(".\t<OP, 13>\n");
+                break;
+            case TokenType::Select:
+                printf("SELECT\t<KW, 1>\n");
+                break; 
+            case TokenType::From:
+                printf("FROM\t<KW, 2>\n");
                 break;
             case TokenType::Invalid:
                 printf("[Error] Unexpected token: %c\n", token);

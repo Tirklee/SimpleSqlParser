@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <string.h>
+#include <optional>
 #include "token.hpp"
 #include "symbol.hpp"
 
@@ -11,10 +12,11 @@ class Lexer
 {
 private:
     char* src; //  源码
+    int token;
     TokenType token_type;
-    int token; // 当前的 token
     TokenValue token_val;
     std::vector<Symbol> symtab; // 符号表
+    std::optional<char*> name;
 public:
     void add_keywords();
     void next();
