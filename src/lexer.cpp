@@ -45,7 +45,7 @@ void Lexer::next() {
             // 获取符号名
             char nameBuffer[100];
             nameBuffer[0] = token;
-            while((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z') || (*src >= '0' && *src <= '9') ||*src == '_') {
+            while((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z') || (*src >= '0' && *src <= '9') || *src == '_') {
                 nameBuffer[src - last_pos] = *src;
                 src++;
             }
@@ -186,15 +186,15 @@ void Lexer::next() {
             this->token_type = TokenType::Dot;
             return;
         }else if(token == '('){
-            this->token = TokenType::Lp;
+            this->token_type = TokenType::Lp;
             return;
         }else if(token == ')'){
-            this->token = TokenType::Rp;
+            this->token_type = TokenType::Rp;
             return;
         }else if(this->token == ','){
-            this->token = TokenType::Comma;
+            this->token_type = TokenType::Comma;
             return;
-        }else if(token == ' ' || token == '\t') {}
+        }else if(token == ' ' || token == '\t' || token == ';' || token == '\n') {}
         else if(token == '\\'){}
         else{
             this->token_type = TokenType::Invalid;
