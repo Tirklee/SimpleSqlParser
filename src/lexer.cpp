@@ -6,12 +6,13 @@ Lexer::Lexer(){}
 Lexer::~Lexer(){}
 
 void Lexer::add_keywords() {
-    const char* src = "SELECT FROM WHERE AS INSERT INTO VALUES \
-                UPDATE DELETE JOIN LEFT RIGHT MIN MAX AVG SUM \
-                UNION ALL GROUP BY HAVING DISTINCT ORDER BY TRUE FALSE \
-                IS NOT NULL AND OR XOR";
+    const char* src = "SELECT FROM WHERE AS INSERT INTO VALUES VALUE DEFAULT\
+                UPDATE SET DELETE JOIN LEFT RIGHT ON MIN MAX AVG SUM \
+                UNION ALL GROUP BY HAVING DISTINCT ORDER BY TRUE FALSE UNKNOWN \
+                IS NULL AND OR XOR NOT";
     this->src = (char*)src;
-    for(size_t i = 0; i < KEYWORD_SIZE; i++) {
+    size_t keyword_size = sizeof(keywords)/sizeof(keywords[0]);
+    for(size_t i = 0; i < keyword_size; i++) {
         this->next();
         this->symtab[this->symtab.size() - 1].type = keywords[i];
     }
@@ -123,6 +124,9 @@ void Lexer::next() {
             this->token_val.str_ptr = str;
             src++;
             return;
+        }else if(token == '*'){
+            this->token_type = TokenType::WildCard;
+            return;
         }else if(token == '='){
             // 等于符号
             this->token_type = TokenType::Equal;
@@ -133,7 +137,7 @@ void Lexer::next() {
                 src++;
                 this->token_type = TokenType::NonEqual;
             }else{
-                this->token_type = TokenType::Invalid;
+                this->token_type = TokenType::Not2;
             }
             return;
         }else if(token == '<') {
@@ -174,6 +178,9 @@ void Lexer::next() {
             }else{
                 this->token_type = TokenType::Invalid;
             }
+            return;
+        }else if(token == '-'){
+            this->token_type = TokenType::Sub;
             return;
         }else if(token == '.'){
             this->token_type = TokenType::Dot;
@@ -262,8 +269,17 @@ void Lexer::run(char* src) {
             case TokenType::Xor:
                 printf("XOR\t<OP, 12>\n");
                 break;
+            case TokenType::Not:
+                printf("NOT\t<OP, 13>\n");
+                break;
+            case TokenType::Not2:
+                printf("!\t<OP, 14>\n");
+                break;
+            case TokenType::Sub:
+                printf("-\t<KW, 15>\n");
+                break;
             case TokenType::Dot:
-                printf(".\t<OP, 13>\n");
+                printf(".\t<OP, 16>\n");
                 break;
             case TokenType::Select:
                 printf("SELECT\t<KW, 1>\n");
@@ -277,74 +293,89 @@ void Lexer::run(char* src) {
             case TokenType::As:
                 printf("AS\t<KW, 4>\n");
                 break;
+            case TokenType::WildCard:
+                printf("*\t<KW, 5>\n");
+                break;
             case TokenType::Insert:
-                printf("INSERT\t<KW, 5>\n");
+                printf("INSERT\t<KW, 6>\n");
                 break;
             case TokenType::Into:
-                printf("INTO\t<KW, 6>\n");
+                printf("INTO\t<KW, 7>\n");
                 break;
             case TokenType::Values:
-                printf("VALUES\t<KW, 7>\n");
+                printf("VALUES\t<KW, 8>\n");
+                break;
+            case TokenType::Value:
+                printf("VALUE\t<KW, 9>\n");
+                break;
+            case TokenType::Default:
+                printf("DEFAULT\t<KW, 10>\n");
                 break;
             case TokenType::Update:
-                printf("UPDATE\t<KW, 8>\n");
+                printf("UPDATE\t<KW, 11>\n");
+                break;
+            case TokenType::Set:
+                printf("SET\t<KW, 12>\n");
                 break;
             case TokenType::Delete:
-                printf("DELECTE\t<KW, 9>\n");
+                printf("DELECTE\t<KW, 13>\n");
                 break;
             case TokenType::Join:
-                printf("JOIN\t<KW, 10>\n");
+                printf("JOIN\t<KW, 14>\n");
                 break;
             case TokenType::Left:
-                printf("LEFT\t<KW, 11>\n");
+                printf("LEFT\t<KW, 15>\n");
                 break;
             case TokenType::Right:
-                printf("RIGHT\t<KW, 12>\n");
+                printf("RIGHT\t<KW, 16>\n");
+                break;
+            case TokenType::On:
+                printf("ON\t<KW, 17>\n");
                 break;
             case TokenType::Min:
-                printf("MIN\t<KW, 13>\n");
+                printf("MIN\t<KW, 18>\n");
                 break;
             case TokenType::Max:
-                printf("MAX\t<KW, 14>\n");
+                printf("MAX\t<KW, 19>\n");
                 break;
             case TokenType::Avg:
-                printf("AVG\t<KW, 15>\n");
+                printf("AVG\t<KW, 20>\n");
                 break;
             case TokenType::Sum:
-                printf("SUM\t<KW, 16>\n");
+                printf("SUM\t<KW, 21>\n");
                 break;
             case TokenType::Union:
-                printf("UNION\t<KW, 17>\n");
+                printf("UNION\t<KW, 22>\n");
                 break;
             case TokenType::All:
-                printf("ALL\t<KW, 19>\n");
+                printf("ALL\t<KW, 23>\n");
                 break;
             case TokenType::GroupBy:
-                printf("GROUP BY\t<KW, 19>\n");
+                printf("GROUP BY\t<KW, 24>\n");
                 break;
             case TokenType::Having:
-                printf("HAVING\t<KW, 20>\n");
+                printf("HAVING\t<KW, 25>\n");
                 break;
             case TokenType::Distinct:
-                printf("DISTINCT\t<KW, 21>\n");
+                printf("DISTINCT\t<KW, 26>\n");
                 break;
             case TokenType::OrderBy:
-                printf("ORDER BY\t<KW, 22>\n");
+                printf("ORDER BY\t<KW, 27>\n");
                 break;
             case TokenType::True:
-                printf("TRUE\t<KW, 23>\n");
+                printf("TRUE\t<KW, 28>\n");
                 break;
             case TokenType::False:
-                printf("FALSE\t<KW, 24>\n");
+                printf("FALSE\t<KW, 29>\n");
+                break;
+            case TokenType::Unknown:
+                printf("UNKNOWN\t<KW, 30>\n");
                 break;
             case TokenType::Is:
-                printf("IS\t<KW, 25>\n");
-                break;
-            case TokenType::Not:
-                printf("NOT\t<KW, 26>\n");
+                printf("IS\t<KW, 31>\n");
                 break;
             case TokenType::Null:
-                printf("NULL\t<KW, 27>\n");
+                printf("NULL\t<KW, 32>\n");
                 break;
             case TokenType::Invalid:
                 printf("[Error] Unexpected token: %c\n", token);

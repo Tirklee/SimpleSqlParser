@@ -18,6 +18,6 @@ int main(int argc, char** argv) {
     printf("[Debug] Test String.\n");
     src = "\"Hello SQL Lexer!\"";
     lexer.run((char*)src);
-    src = "SELECT t.c FROM t WHERE t.a > 0 GROUP BY ORDER BY";
+    src = "SELECT t.c FROM t WHERE t.a > 0 GROUP BY ORDER BY ON DEFAULT NOT !";
     lexer.run((char*)src);
 }
