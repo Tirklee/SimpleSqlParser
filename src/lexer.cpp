@@ -19,6 +19,17 @@ void Lexer::add_keywords() {
     
 }
 
+void Lexer::init() {
+    std::vector<std::string> keywords = {
+        "SELECT", "FROM", "WHERE", "AS", "INSERT", "INTO", "VALUES", "VALUE", "DEFAULT",
+        "UPDATE", "SET", "DELETE", "JOIN", "LEFT", "RIGHT", "ON", "MIN", "MAX", "AVG", "SUM",
+        "UNION", "ALL", "GROUP", "BY", "HAVING", "DISTINCT", "ORDER BY", "TRUE", "FALSE", "UNKNOWN",
+        "IS", "NULL", "AND", "OR", "XOR", "NOT"
+    };
+    this->keywords_name = keywords;
+    this->add_keywords();
+}
+
 // 向前查看 n 个字符, 用于对于有相同部分的标识符进行识别
 char* Lexer::lookupn(int size) {
     char* ptr = src - size;
@@ -33,6 +44,18 @@ char* Lexer::lookdown(int size) {
     memcpy(buf, src, size);
     buf[size] = '\0';
     return buf;
+}
+
+void Lexer::add_idn_to_token(Symbol symbol) {
+    if(std::find(this->keywords_name.begin(), this->keywords_name.end(), symbol.name) != this->keywords_name.end()) {
+        // 发现关键字, 直接将关键字的名字加入到 parser_token type 中
+        this->parser_token.type = symbol.name;
+    }else {
+        // 此时为标识符
+        this->parser_token.type = "IDN";
+        this->parser_token.str.emplace(symbol.name);
+        this->parser_token.value.emplace(symbol.value);
+    }
 }
 
 // 获取下一个 token
@@ -69,6 +92,8 @@ void Lexer::next() {
                     char* name = new char[MAX_NAME_SIZE];
                     strcpy(name, nameBuffer);
                     this->name = std::make_optional(name);
+                    // 将标识符添加到 parser_token 中
+                    this->add_idn_to_token(sym);
                     return;
                 }
             }
@@ -86,6 +111,8 @@ void Lexer::next() {
             char* name = new char[MAX_NAME_SIZE];
             strcpy(name, nameBuffer);
             this->name = std::make_optional(name);
+            // 将标识符加入到 parser_token 中
+            this->add_idn_to_token(symbol);
             return;
         }else if(token >= '0' && token <= '9') {
             this->token_val.value = (double)token - '0';
@@ -101,9 +128,12 @@ void Lexer::next() {
                     this->token_val.value = this->token_val.value + ((double)(*src++) - '0')/(10.0 * countDig);
                     countDig++;
                 }
+                this->parser_token.type = "FLOAT";
             }else {
                 this->token_type = TokenType::Int;
+                this->parser_token.type = "INT";
             }
+            this->parser_token.value.emplace(this->token_val.value);
             return;
         }else if(token == '"') {
             // 字符串
@@ -123,20 +153,27 @@ void Lexer::next() {
             this->token_type = TokenType::Str;
             this->token_val.str_ptr = str;
             src++;
+            // 为 parser 添加 token
+            this->parser_token.type = "STRING";
+            this->parser_token.str.emplace(str);
             return;
         }else if(token == '*'){
+            this->parser_token.type = "*";
             this->token_type = TokenType::WildCard;
             return;
         }else if(token == '='){
             // 等于符号
+            this->parser_token.type = "=";
             this->token_type = TokenType::Equal;
             return;
         }else if(token == '!'){
             // 不等于符号
             if(*src == '=') {
                 src++;
+                this->parser_token.type = "!=";
                 this->token_type = TokenType::NonEqual;
             }else{
+                this->parser_token.type = "!";
                 this->token_type = TokenType::Not2;
             }
             return;
@@ -146,11 +183,14 @@ void Lexer::next() {
                 src++;
                 if(*src == '>') {
                     src++;
+                    this->parser_token.type = "<=>";
                     this->token_type = TokenType::SafeEqual;
                 }else {
+                    this->parser_token.type = "<=";
                     this->token_type = TokenType::LessEqual;
                 }
             }else {
+                this->parser_token.type = "<";
                 this->token_type = TokenType::Less;
             }
             return;
@@ -158,49 +198,69 @@ void Lexer::next() {
             // > / >=
             if(*src == '=') {
                 src++;
+                this->parser_token.type = ">=";
                 this->token_type = TokenType::GreatEqual;
             }else {
+                this->parser_token.type = ">";
                 this->token_type = TokenType::Great;
             }
             return;
         }else if(token == '|') {
             if(*src == '|') {
                 src++;
+                this->parser_token.type = "||";
                 this->token_type = TokenType::Or2;
             }else {
+                this->parser_token.type = "INVALID";
                 this->token_type = TokenType::Invalid;
             }
             return;
         }else if(token == '&') {
             if(*src == '&') {
                 src++;
+                this->parser_token.type = "&&";
                 this->token_type = TokenType::And2;
             }else{
+                this->parser_token.type = "INVALID";
                 this->token_type = TokenType::Invalid;
             }
             return;
         }else if(token == '-'){
+            this->parser_token.type = "-";
             this->token_type = TokenType::Sub;
             return;
         }else if(token == '.'){
+            this->parser_token.type = ".";
             this->token_type = TokenType::Dot;
             return;
         }else if(token == '('){
+            this->parser_token.type = "(";
             this->token_type = TokenType::Lp;
             return;
         }else if(token == ')'){
+            this->parser_token.type = ")";
             this->token_type = TokenType::Rp;
             return;
         }else if(this->token == ','){
+            this->parser_token.type = ",";
             this->token_type = TokenType::Comma;
             return;
         }else if(token == ' ' || token == '\t' || token == ';' || token == '\n') {}
         else if(token == '\\'){}
         else{
+            this->parser_token.type = "INVALID";
             this->token_type = TokenType::Invalid;
             printf("[Error] Unexpected token: %c\n", token);
         }
     }
+}
+
+Token Lexer::get_token() {
+    return this->parser_token;
+}
+
+int Lexer::get_current_token_value() {
+    return this->token;
 }
 
 // 运行
@@ -383,6 +443,16 @@ void Lexer::run(char* src) {
             default:
                 printf("[Error] Fail to find token\n");
         }
+#ifdef DEBUG
+        printf("[Debug] parser: ");
+        printf("type: %s ", this->parser_token.type.c_str());
+        if(this->parser_token.value.has_value()) {
+            printf("value: %lf ", this->parser_token.value.value());
+        }
+        if(this->parser_token.str.has_value()) {
+            printf("str: %s\n", this->parser_token.str.value().c_str());
+        }
+#endif
         this->next();
     }
 }
