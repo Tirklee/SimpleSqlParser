@@ -23,7 +23,7 @@ void Lexer::init() {
     std::vector<std::string> keywords = {
         "SELECT", "FROM", "WHERE", "AS", "INSERT", "INTO", "VALUES", "VALUE", "DEFAULT",
         "UPDATE", "SET", "DELETE", "JOIN", "LEFT", "RIGHT", "ON", "MIN", "MAX", "AVG", "SUM",
-        "UNION", "ALL", "GROUP", "BY", "HAVING", "DISTINCT", "ORDER BY", "TRUE", "FALSE", "UNKNOWN",
+        "UNION", "ALL", "GROUP BY", "HAVING", "DISTINCT", "ORDER BY", "TRUE", "FALSE", "UNKNOWN",
         "IS", "NULL", "AND", "OR", "XOR", "NOT"
     };
     this->keywords_name = keywords;
