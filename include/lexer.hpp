@@ -8,12 +8,57 @@
 #include <algorithm>
 #include "token.hpp"
 #include "symbol.hpp"
+#include <stack>
+#include <unordered_map>
+using namespace std;
 
 struct Token
 {
     std::string type;
     std::optional<double> value;
     std::optional<std::string> str;
+};
+
+class StateParser
+{
+public:
+	StateParser(){};
+	StateParser(string file_path);
+	void showResult(string file_path);
+private:
+	struct State
+	{
+		int index;
+		bool is_begin;
+		bool is_end;
+		vector<pair<vector<char>, State*>> go;
+	};
+	struct ClosureState
+	{
+		int index;
+		int is_begin;
+		int is_end;
+		ClosureState* parent;
+		char from_element;
+		vector<State*> contain_state;
+		vector<pair<char, ClosureState*>> go;
+	};
+	struct DetermineState
+	{
+		int index;
+		bool is_begin;
+		bool is_end;
+		vector<pair<char, DetermineState*>> go;
+	};
+	void parseFile();
+	void determine();
+	void minimize();
+	bool checkStateConflict(vector<State*> states, State* state);
+	bool checkClosureStateConflict(vector<ClosureState*> states, vector<State*> state);
+	void varepsilonClosure(ClosureState* before);
+	string path;
+	vector<State*> m_states;
+	vector<DetermineState*> determine_state;
 };
 
 
@@ -30,6 +75,7 @@ private:
     Token parser_token; // 传输给 parser 的 token
     // 添加关键字
     void add_keywords();
+	bool printToken();
     // 向前查看 n 个字符
     char* lookupn(int size);
     // 向后查看 n 个字符
@@ -38,7 +84,7 @@ private:
     void add_idn_to_token(Symbol symbol);
 public:
     void init();
-    void next();
+    bool next(bool show=false);
     Token get_token();
     int get_current_token_value();
     void run(char* src);

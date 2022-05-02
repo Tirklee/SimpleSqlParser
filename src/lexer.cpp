@@ -13,7 +13,7 @@ void Lexer::add_keywords() {
     this->src = (char*)src;
     size_t keyword_size = sizeof(keywords)/sizeof(keywords[0]);
     for(size_t i = 0; i < keyword_size; i++) {
-        this->next();
+        this->next(0);
         this->symtab[this->symtab.size() - 1].type = keywords[i];
     }
     
@@ -23,7 +23,7 @@ void Lexer::init() {
     std::vector<std::string> keywords = {
         "SELECT", "FROM", "WHERE", "AS", "INSERT", "INTO", "VALUES", "VALUE", "DEFAULT",
         "UPDATE", "SET", "DELETE", "JOIN", "LEFT", "RIGHT", "ON", "MIN", "MAX", "AVG", "SUM",
-        "UNION", "ALL", "GROUP BY", "HAVING", "DISTINCT", "ORDER BY", "TRUE", "FALSE", "UNKNOWN",
+        "UNION", "ALL", "GROUP", "BY", "HAVING", "DISTINCT", "ORDER BY", "TRUE", "FALSE", "UNKNOWN",
         "IS", "NULL", "AND", "OR", "XOR", "NOT"
     };
     this->keywords_name = keywords;
@@ -59,7 +59,7 @@ void Lexer::add_idn_to_token(Symbol symbol) {
 }
 
 // 获取下一个 token
-void Lexer::next() {
+bool Lexer::next(bool show) {
     char* last_pos;
     while((token = *src) && *src != 0) {
         ++src;
@@ -81,7 +81,7 @@ void Lexer::next() {
                     memcpy(nameBuffer + (src - last_pos), buf, 3);
                 }else {
                     this->token_type = TokenType::Invalid;
-                    return;
+                    goto OUT;
                 }
             }
             // 从符号表中查找是否有对应的符号名
@@ -94,7 +94,7 @@ void Lexer::next() {
                     this->name = std::make_optional(name);
                     // 将标识符添加到 parser_token 中
                     this->add_idn_to_token(sym);
-                    return;
+                    goto OUT;
                 }
             }
 #ifdef DEBUG
@@ -113,7 +113,7 @@ void Lexer::next() {
             this->name = std::make_optional(name);
             // 将标识符加入到 parser_token 中
             this->add_idn_to_token(symbol);
-            return;
+            goto OUT;
         }else if(token >= '0' && token <= '9') {
             this->token_val.value = (double)token - '0';
             while(*src >= '0' && *src <= '9') {
@@ -134,14 +134,14 @@ void Lexer::next() {
                 this->parser_token.type = "INT";
             }
             this->parser_token.value.emplace(this->token_val.value);
-            return;
+            goto OUT;
         }else if(token == '"') {
             // 字符串
             int size = 0;
             while(*src != token) {
                 if(*src == 0) {
                     this->token_type = TokenType::Invalid;
-                    return;
+                    goto OUT;
                 }
                 src++;
                 size++;
@@ -156,16 +156,16 @@ void Lexer::next() {
             // 为 parser 添加 token
             this->parser_token.type = "STRING";
             this->parser_token.str.emplace(str);
-            return;
+            goto OUT;
         }else if(token == '*'){
             this->parser_token.type = "*";
             this->token_type = TokenType::WildCard;
-            return;
+            goto OUT;
         }else if(token == '='){
             // 等于符号
             this->parser_token.type = "=";
             this->token_type = TokenType::Equal;
-            return;
+            goto OUT;
         }else if(token == '!'){
             // 不等于符号
             if(*src == '=') {
@@ -176,7 +176,7 @@ void Lexer::next() {
                 this->parser_token.type = "!";
                 this->token_type = TokenType::Not2;
             }
-            return;
+            goto OUT;
         }else if(token == '<') {
             // < / <= / <=>
             if(*src == '=') {
@@ -193,7 +193,7 @@ void Lexer::next() {
                 this->parser_token.type = "<";
                 this->token_type = TokenType::Less;
             }
-            return;
+            goto OUT;
         }else if(token == '>') {
             // > / >=
             if(*src == '=') {
@@ -204,7 +204,7 @@ void Lexer::next() {
                 this->parser_token.type = ">";
                 this->token_type = TokenType::Great;
             }
-            return;
+            goto OUT;
         }else if(token == '|') {
             if(*src == '|') {
                 src++;
@@ -214,7 +214,7 @@ void Lexer::next() {
                 this->parser_token.type = "INVALID";
                 this->token_type = TokenType::Invalid;
             }
-            return;
+            goto OUT;
         }else if(token == '&') {
             if(*src == '&') {
                 src++;
@@ -224,27 +224,27 @@ void Lexer::next() {
                 this->parser_token.type = "INVALID";
                 this->token_type = TokenType::Invalid;
             }
-            return;
+            goto OUT;
         }else if(token == '-'){
             this->parser_token.type = "-";
             this->token_type = TokenType::Sub;
-            return;
+            goto OUT;
         }else if(token == '.'){
             this->parser_token.type = ".";
             this->token_type = TokenType::Dot;
-            return;
+            goto OUT;
         }else if(token == '('){
             this->parser_token.type = "(";
             this->token_type = TokenType::Lp;
-            return;
+            goto OUT;
         }else if(token == ')'){
             this->parser_token.type = ")";
             this->token_type = TokenType::Rp;
-            return;
+            goto OUT;
         }else if(this->token == ','){
             this->parser_token.type = ",";
             this->token_type = TokenType::Comma;
-            return;
+            goto OUT;
         }else if(token == ' ' || token == '\t' || token == ';' || token == '\n') {}
         else if(token == '\\'){}
         else{
@@ -253,6 +253,12 @@ void Lexer::next() {
             printf("[Error] Unexpected token: %c\n", token);
         }
     }
+OUT:;
+	if(show)
+	{
+		return printToken();
+	}
+	return true;
 }
 
 Token Lexer::get_token() {
@@ -266,8 +272,11 @@ int Lexer::get_current_token_value() {
 // 运行
 void Lexer::run(char* src) {
     this->src = src;
-    this->next();
-    while(this->token > 0) {
+}
+
+bool Lexer::printToken()
+{
+	if(this->token > 0) {
         switch(this->token_type) {
             case TokenType::Float: 
                 printf("FLOAT\t<FLOAT, %lf>\n", this->token_val.value);
@@ -453,6 +462,127 @@ void Lexer::run(char* src) {
             printf("str: %s\n", this->parser_token.str.value().c_str());
         }
 #endif
-        this->next();
+	return true;
     }
+	return false;
+} 
+
+StateParser::StateParser(string file_path) : path(file_path)
+{
+
+}
+
+void StateParser::showResult(string file_path)
+{
+	parseFile();
+	determine();
+	minimize();
+	// 将最小化结果输出到文件中
+}
+
+void StateParser::parseFile()
+{
+
+}
+
+void StateParser::determine()
+{
+
+	vector<ClosureState*> states;
+	int index = 0;
+	ClosureState* base_state = new ClosureState;
+	base_state->contain_state.push_back(m_states[0]);
+	stack<ClosureState*> st;
+	st.push(base_state);
+	while(!st.empty())
+	{
+		ClosureState* state = st.top();
+		st.pop();
+		state->index = index;
+		index++;
+		// 处理空
+		varepsilonClosure(state);
+		unordered_map<char, vector<State*>> go;
+		for(int i=0; i<state->contain_state.size(); i++)
+		{
+			State* now_state = state->contain_state[i];
+			for(int k=0; k<now_state->go.size(); k++)
+			{
+				pair<vector<char>, State*> current_element = now_state->go[k];
+				for(int j=0; j<current_element.first.size(); j++)
+				{
+					if(go.find(current_element.first[j]) == go.end())
+					{
+						vector<State*> new_state;
+						new_state.push_back(current_element.second);
+						go[current_element.first[j]] = new_state;
+					}
+					else
+					{
+						if(!checkStateConflict(go[current_element.first[j]], current_element.second))
+							go[current_element.first[j]].push_back(current_element.second);
+					}
+				}
+			}
+		}
+		// go是当前状态经过符号后跳转到的状态
+		// 判断是否重复，如果没有重复则认为是一个新的状态
+		for(auto iter=go.begin(); iter!=go.end(); iter++)
+		{
+			if(!checkClosureStateConflict(states, iter->second))
+			{
+				ClosureState* new_state = new ClosureState;
+				new_state->contain_state = iter->second;
+				new_state->from_element = iter->first;
+				new_state->parent = state;
+				state->go.push_back(pair(iter->first, new_state));
+				st.push(new_state);
+			}
+		}
+	}
+
+	// TODO: 确定is_begin和is_end的值，并转化成DetermineState*
+}
+
+bool StateParser::checkStateConflict(vector<State*> states, State* state)
+{
+	for(int i=0; i<states.size(); i++)
+	{
+		if(state->index == states[i]->index)
+			return true;
+	}
+	return false;
+}
+
+bool StateParser::checkClosureStateConflict(vector<ClosureState*> states, vector<State*> state)
+{
+	for(int i=0; i<states.size(); i++)
+	{
+		for(int k=0; k<states[i]->contain_state.size(); k++)
+		{
+			int j;
+			for(j=0; j<state.size(); j++)
+			{
+				if(states[i]->contain_state[k]->index == state[j]->index)
+				{
+					break;
+				}
+			}
+			if(j == state.size())
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+void StateParser::varepsilonClosure(ClosureState* before)
+{
+
+} 
+
+void StateParser::minimize()
+{
+	
 }

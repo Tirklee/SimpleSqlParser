@@ -1,0 +1,3 @@
+SELECT employer, salary FROM compony WHERE id = 1;
+SELECT t, SUM(c) AS tempsum FROM A GROUP BY 3;
+SELECT subject.name,score.id FROM  subject LEFT JOIN score  ON subject.id = score.subject_id;

@@ -1,30 +1,60 @@
-#include <iostream>
-#include <fstream>
-#include <string.h>
+#include<stdio.h>
+#include "GrammaAnalyse.h"
 #include "lexer.hpp"
 
+LR1Table table;
+Lexer lexer;
 
-int main(int argc, char** argv) {
-    printf("Hello SQL Lexer!\n");
-    Lexer lexer;
-    // 对词法分析器进行初始化
-    lexer.init();
-    // printf("[Debug] Test Number.\n");
-    // const char* src = "12345 67 55.8 564";
-    // lexer.run((char*)src);
-    // printf("[Debug] Test Operator.\n");
-    // src = "= > >= < <= <=> != && || . AND OR XOR";
-    // lexer.run((char*)src);
-    // printf("[Debug] Test String.\n");
-    // src = "\"Hello SQL Lexer!\"";
-    // lexer.run((char*)src);
-    // src = "SELECT t.c FROM t WHERE t.a > 0 GROUP BY ORDER BY ON DEFAULT NOT !";
-    // lexer.run((char*)src);
+void init()
+{
+	lexer.init();
+	table.init("build/table.txt");
+}
 
-    FILE* file = fopen("examples/test1.txt", "r");
-    if(file){
-        char* buf = new char[512];
-        fread(buf, 1, 512, file);
-        lexer.run(buf);
-    }
+int main(int argc, char** argv)
+{
+	system("chcp 65001");
+	init();
+//    cout<<SELECT<<root<<endl;
+    FILE* file = fopen("doc/test.txt", "r");
+	if(!file)
+	{
+		cout << "file can't open" << endl;
+		return -1;
+	}
+	while(!feof(file))
+	{
+		string s; // 词法分析结果
+		char buffer[1024];
+		fgets(buffer, 1024, file);
+        table.reset();
+		lexer.run(buffer);
+		while(lexer.next(true))
+		{
+			// 词法分析
+			Token token = lexer.get_token();
+			s.assign(token.type);
+			//语法分析
+			element_t ele = parseString(s);
+			if(!table.parseToken(ele))
+			{
+				cout << "语法分析错误" << endl;
+				return -2;
+			}
+		}
+		element_t last_token;
+		last_token.type = 0;
+		last_token.terminal = VAREPSILON;
+		if(!table.parseToken(last_token))
+		{
+			cout << "语法分析错误" << endl;
+			return -2;
+		}
+		else
+		{
+			cout << "归约成功" << endl;
+		}
+	}
+	fclose(file);
+	return 0;
 }
