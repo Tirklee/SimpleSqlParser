@@ -1,5 +1,17 @@
 #include "dfa.hpp"
 
+void NFAToDFA::print_vec(std::vector<int> vec) {
+    std::cout << "{";
+    for(std::vector<int>::const_iterator i = vec.begin(); i != vec.end(); i++) {
+        if(i != vec.end() - 1){
+            std::cout<< *i <<",";
+        }else {
+            std::cout<< *i;
+        }
+    }
+    std::cout<<"}";
+}
+
 DFAState NFAToDFA::new_dfa_state(bool mark, std::vector<int> s) {
     DFAState new_state;
     std::map<char, int> init;
@@ -82,6 +94,18 @@ std::vector<int> NFAToDFA::move(std::vector<int> T, char ele, NFATable nfa_table
     return res;
 }
 
+std::vector<int> NFAToDFA::find_final_dfa() {
+    std::vector<int> finals;
+    for(unsigned long int i = 0; i < _dfa_state_table.size(); i++){
+        for(std::vector<int>::const_iterator k = _final_states.begin(); k != _final_states.end(); k++){
+            if( vector_contain(_dfa_state_table[i].states, *k) ){
+                finals.push_back(i);
+            }
+        }
+    }
+    return finals;
+}
+
 // DFA 确定化
 void NFAToDFA::nfa_determine() {
     int current_dfa_state_num = 0;
@@ -90,6 +114,7 @@ void NFAToDFA::nfa_determine() {
     init_state_vec.push_back(_init_state);
 
     std::vector<int> eclos = eclosure(init_state_vec, _nfa_state_table);
+    std::cout << "E-closure(IO) = ";
 
     // 新建 DFA 状态为空
     DFAState init_state = new_dfa_state(false, eclos);
@@ -97,20 +122,38 @@ void NFAToDFA::nfa_determine() {
     current_dfa_state_num++;
 
     while(is_any_unmarked(_dfa_state_table) >= 0) {
+        // 找到第一个没有被标记的 DFA state
         int k = is_any_unmarked(_dfa_state_table);
+        // 将该 state 设置为 marked
         _dfa_state_table[k].marked = true;
 
+        // 遍历所有字母找到下一步状态
         for(auto w = _alphabet.begin(); w != _alphabet.end() - 1; w++) {
-            // 移动某字符获取到的状态
+            // 获取某元素 move 后的状态
             std::vector<int> theMove = move(_dfa_state_table[k].states, *w, _nfa_state_table);
-            // 将移动字符获取的状态 epilision
+            // 获取若干次 epilision 后的状态
             std::vector<int> alphaMove = eclosure(theMove, _nfa_state_table);
+            if( !(theMove.empty()) ){
+                print_vec(_dfa_state_table[k].states);
+                std::cout << "-- " << *w << " --> ";
+                print_vec(theMove);
+                std::cout << "\n";
+                std::cout << "E-closure";
+                print_vec(theMove);
+                std::cout << " = ";
+                print_vec(alphaMove);
+                std::cout << " = ";
+            }
             // 查看状态是否重复
             int j = dfa_state_contain(alphaMove, _dfa_state_table);
             if(j >= 0) {
+                // 表示该状态已经出现过了
+                // 标记当前状态经过 move 后的下一个状态
+                std::cout << j << "\n";
                 _dfa_state_table[k].moves[*w] = j;
             }else {
                 if(!alphaMove.empty()) {
+                    std::cout << current_dfa_state_num << "\n";
                     DFAState new_state = new_dfa_state(false, alphaMove);
                     _dfa_state_table[current_dfa_state_num] = new_state;
                     _dfa_state_table[k].moves[*w] = current_dfa_state_num;
@@ -120,10 +163,15 @@ void NFAToDFA::nfa_determine() {
             }
         }
     }
+    std::cout<< "\n";
 }
 
-void NFAToDFA::dfa_minialize() {
+// DFA 最小化
+void NFAToDFA::dfa_minialize(DFATable& dfa_table, NFATable& nfa_table) {
+    // 首先将 DFA Table 分为终结状态和非终结状态
+    // for(auto &state: _final_states) {
 
+    // }
 }
 
 void NFAToDFA::read_file(std::string filename) {

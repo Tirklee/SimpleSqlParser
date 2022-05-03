@@ -14,9 +14,14 @@ const char OPENING_BRACKET = '{';
 const char CLOSING_BRACKET = '}';
 
 struct DFAState {
+    // 是否被遍历过
     bool marked;
+    // 当前的状态，使用字符集来表示
     std::vector<int> states;
+    // 经过某字符的 move 后的下一状态的标号
     std::map<char, int> moves;
+    // 用于在最小化时使用
+    std::vector<int> state;
 };
 
 // DFA 状态表
@@ -39,6 +44,7 @@ class NFAToDFA {
         // DFA 状态表
         DFATable _dfa_state_table;
 
+        void print_vec(std::vector<int> vec);
         // 初始化 DFA state
         DFAState new_dfa_state(bool mark, std::vector<int> s);
         // 是否包含某个 key
@@ -51,13 +57,30 @@ class NFAToDFA {
         std::vector<int> eclosure(std::vector<int> T, NFATable nfa_table);
         // 根据给定的状态，返回根据元素移动后的状态
         std::vector<int> move(std::vector<int> T, char ele, NFATable nfa_table);
+        // 查找最终的 DFA
+        std::vector<int> find_final_dfa();
     public:
         // 读取文件
         void read_file(std::string filename);
         // NFA 确定化
         void nfa_determine();
         // DFA 最小化
-        void dfa_minialize();
+        void dfa_minialize(DFATable& dfa_table, NFATable& nfa_table);
+        // 打印 DFA 终态
+        void print_dfa_final_state(){
+            std::vector<int> final_states = find_final_dfa();
+            print_vec(final_states);
+            std::cout<< "\n";
+            for(size_t i = 0; i < final_states.size(); i++) {
+                std::cout<< "State " << final_states[i] << ":";
+                print_vec(_dfa_state_table[final_states[i]].states);
+                std::cout<< "\n";
+            }
+        }
+        // 构造函数
+        NFAToDFA(std::string filename){ read_file(filename); }
+        // 析构函数
+        ~NFAToDFA(){}
 };
 
 #endif
