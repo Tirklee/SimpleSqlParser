@@ -9,6 +9,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <queue>
+
 
 const char OPENING_BRACKET = '{';
 const char CLOSING_BRACKET = '}';
@@ -20,8 +22,6 @@ struct DFAState {
     std::vector<int> states;
     // 经过某字符的 move 后的下一状态的标号
     std::map<char, int> moves;
-    // 用于在最小化时使用
-    std::vector<int> state;
 };
 
 // DFA 状态表
@@ -43,6 +43,8 @@ class NFAToDFA {
         NFATable _nfa_state_table;
         // DFA 状态表
         DFATable _dfa_state_table;
+        // DFA 终态
+        std::vector<int> _dfa_final_states;
 
         void print_vec(std::vector<int> vec);
         // 初始化 DFA state

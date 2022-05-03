@@ -103,6 +103,7 @@ std::vector<int> NFAToDFA::find_final_dfa() {
             }
         }
     }
+    this->_dfa_final_states = finals;
     return finals;
 }
 
@@ -169,9 +170,31 @@ void NFAToDFA::nfa_determine() {
 // DFA 最小化
 void NFAToDFA::dfa_minialize(DFATable& dfa_table, NFATable& nfa_table) {
     // 首先将 DFA Table 分为终结状态和非终结状态
-    // for(auto &state: _final_states) {
+    std::queue<std::vector<int>> dfa_partiation;
+    std::vector<std::vector<int>> dfa_min_ans;
+    // 非终结状态
+    std::vector<int> non_finial_state;
+    for(size_t i = 0; i < _dfa_state_table.size(); i++) {
+        if(std::find(_dfa_final_states.begin(), _dfa_final_states.end(), i) == _dfa_final_states) {
+            non_finial_state.push_back(i);
+        }   
+    }
+    dfa_partiation.push(non_finial_state);
+    dfa_partiation.push(_dfa_final_states);
 
-    // }
+    // 分别读入不同的符号来进行下一步划分
+    // 主要查看该状态在 move 后是否会变为其他状态
+    while(!dfa_partiation.empty()) {
+        // 从队列中取出一个集合
+        auto set = dfa_partiation.front();
+        dfa_partiation.pop();
+        std::vector<int> set_a;
+        std::vector<int> set_b;
+        for(auto &ele: _alphabet) {
+            // 遍历所有字母
+            // 查看某个子集所有元素 move 后仍属一个集合
+        }
+    }
 }
 
 void NFAToDFA::read_file(std::string filename) {
