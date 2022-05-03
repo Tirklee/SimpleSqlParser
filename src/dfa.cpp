@@ -17,14 +17,14 @@ bool NFAToDFA::vector_contain(std::vector<int> vec, int key) {
 }
 
 int NFAToDFA::is_any_unmarked(DFATable dfa_table) {
-    for(int i = 0; i < dfa_table.size(); i++) {
+    for(long unsigned int i = 0; i < dfa_table.size(); i++) {
         if(!dfa_table[i].marked)return i;
     }
     return -1;
 }
 
 int NFAToDFA::dfa_state_contain(std::vector<int> state, DFATable dfa_table) {
-    for(int i = 0; i < dfa_table.size(); i++) {
+    for(long unsigned int i = 0; i < dfa_table.size(); i++) {
         if(state == dfa_table[i].states) return i;
     }
     return -1;
@@ -84,12 +84,32 @@ std::vector<int> NFAToDFA::move(std::vector<int> T, char ele, NFATable nfa_table
 
 // DFA 确定化
 void NFAToDFA::nfa_determine() {
-    
+    int current_dfa_state_num = 0;
+
+    std::vector<int> init_state_vec;
+    init_state_vec.push_back(_init_state);
+
+    std::vector<int> eclos = eclosure(init_state_vec, _nfa_state_table);
+
+    // 新建 DFA 状态为空
+    DFAState init_state = new_dfa_state(false, eclos);
+    _dfa_state_table[current_dfa_state_num] = init_state;
+    current_dfa_state_num++;
+
+    while(is_any_unmarked(_dfa_state_table) >= 0) {
+        int k = is_any_unmarked(_dfa_state_table);
+        _dfa_state_table[k].marked = true;
+
+        for(auto w = _alphabet.begin(); w != _alphabet.end() - 1; w++) {
+
+        }
+    }
 }
 
 void NFAToDFA::read_file(std::string filename) {
     std::string line;
-    std::ifstream myfile(filename);
+    // std::ifstream myfile(filename);
+    std::ifstream myfile = std::ifstream(filename);
 
     if(myfile.is_open()) {
 
@@ -99,10 +119,10 @@ void NFAToDFA::read_file(std::string filename) {
         * GET INITIAL STATE
         *************************************/
         std::istringstream iss(line);
-        char test = iss.get();
+        [[maybe_unused]] char test = iss.get();
 
         while(iss.peek() != OPENING_BRACKET){
-        iss.ignore();
+            iss.ignore();
         }
 
         iss.ignore();
@@ -121,7 +141,7 @@ void NFAToDFA::read_file(std::string filename) {
         iss.ignore();
         int finalState;
         iss >> finalState;
-        FINAL_STATES.push_back(finalState);
+        _final_states.push_back(finalState);
 
         //could have multiple final states. Look for a , loop until we hit the closing brace.
         while(iss.peek() != CLOSING_BRACKET){
@@ -129,7 +149,7 @@ void NFAToDFA::read_file(std::string filename) {
             iss.ignore();
         }
         iss >> finalState;
-        FINAL_STATES.push_back(finalState);
+        _final_states.push_back(finalState);
         }
 
         /*************************************
@@ -153,22 +173,22 @@ void NFAToDFA::read_file(std::string filename) {
         std::getline(myfile, line);
         std::string trash;
         char move;
-        std::istringstream alphabet(line);
+        std::istringstream alphabet = std::istringstream(line);
 
         //consume the "state" word
         alphabet >> trash;
 
         while(alphabet >> move){
-            ALPHABET.push_back(move);
+            _alphabet.push_back(move);
         }
 
         std::getline(myfile, line);
 
-        for(int i = 1; i <= TOTAL_STATES; i++){
+        for(int i = 1; i <= _total_states; i++){
             std::istringstream _iss(line);
             std::map<char, std::vector<int> > StateMovesMap;
 
-            for(int j = 0; j < ALPHABET.size(); j++) {
+            for(unsigned long int j = 0; j < _alphabet.size(); j++) {
                 int state;
                 std::string bracketMoves;
                 std::vector<int> states;
@@ -194,7 +214,7 @@ void NFAToDFA::read_file(std::string filename) {
 
                 if(bracketMoves != ""){
 
-                    std::istringstream movestr(bracketMoves);
+                    std::istringstream movestr = std::istringstream(bracketMoves);
 
                     while(movestr >> state){
                         states.push_back(state);
@@ -209,7 +229,7 @@ void NFAToDFA::read_file(std::string filename) {
                 * Insert it into the StateMovesMap
                 */
                 std::sort(states.begin(), states.end());
-                StateMovesMap[ ALPHABET[j] ] = states;
+                StateMovesMap[ _alphabet[j] ] = states;
             }//End Moves Loop
 
             /*
@@ -217,7 +237,7 @@ void NFAToDFA::read_file(std::string filename) {
             * into the STATE_TABLE, which will be used in the subset and e-closure
             * functions
             */
-            _state_table[i] = StateMovesMap;
+            _nfa_state_table[i] = StateMovesMap;
             std::getline(myfile, line);
         } //End Total States Loop
     } //End If My File is_open();

@@ -7,6 +7,8 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 const char OPENING_BRACKET = '{';
 const char CLOSING_BRACKET = '}';
@@ -28,8 +30,8 @@ class NFAToDFA {
         int _total_states;
         std::vector<int> _final_states;
         std::vector<char> _alphabet;
-        NFATable _state_table;
-        DFAState _dfa_state_table;
+        NFATable _nfa_state_table;
+        DFATable _dfa_state_table;
 
         // 初始化 DFA state
         DFAState new_dfa_state(bool mark, std::vector<int> s);
@@ -48,6 +50,8 @@ class NFAToDFA {
         void read_file(std::string filename);
         // NFA 确定化
         void nfa_determine();
+        // DFA 最小化
+        void dfa_minialize();
 };
 
 #endif
