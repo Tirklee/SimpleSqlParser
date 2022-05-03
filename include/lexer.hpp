@@ -10,7 +10,6 @@
 #include "symbol.hpp"
 #include <stack>
 #include <unordered_map>
-using namespace std;
 
 struct Token
 {
@@ -19,47 +18,48 @@ struct Token
     std::optional<std::string> str;
 };
 
-class StateParser
-{
-public:
-	StateParser(){};
-	StateParser(string file_path);
-	void showResult(string file_path);
-private:
-	struct State
-	{
-		int index;
-		bool is_begin;
-		bool is_end;
-		vector<pair<vector<char>, State*>> go;
-	};
-	struct ClosureState
-	{
-		int index;
-		int is_begin;
-		int is_end;
-		ClosureState* parent;
-		char from_element;
-		vector<State*> contain_state;
-		vector<pair<char, ClosureState*>> go;
-	};
-	struct DetermineState
-	{
-		int index;
-		bool is_begin;
-		bool is_end;
-		vector<pair<char, DetermineState*>> go;
-	};
-	void parseFile();
-	void determine();
-	void minimize();
-	bool checkStateConflict(vector<State*> states, State* state);
-	bool checkClosureStateConflict(vector<ClosureState*> states, vector<State*> state);
-	void varepsilonClosure(ClosureState* before);
-	string path;
-	vector<State*> m_states;
-	vector<DetermineState*> determine_state;
-};
+// using namespace std;
+// class StateParser
+// {
+// public:
+// 	StateParser(){};
+// 	StateParser(string file_path);
+// 	void showResult(string file_path);
+// private:
+// 	struct State
+// 	{
+// 		int index;
+// 		bool is_begin;
+// 		bool is_end;
+// 		vector<pair<vector<char>, State*>> go;
+// 	};
+// 	struct ClosureState
+// 	{
+// 		int index;
+// 		int is_begin;
+// 		int is_end;
+// 		ClosureState* parent;
+// 		char from_element;
+// 		vector<State*> contain_state;
+// 		vector<pair<char, ClosureState*>> go;
+// 	};
+// 	struct DetermineState
+// 	{
+// 		int index;
+// 		bool is_begin;
+// 		bool is_end;
+// 		vector<pair<char, DetermineState*>> go;
+// 	};
+// 	void parseFile();
+// 	void determine();
+// 	void minimize();
+// 	bool checkStateConflict(vector<State*> states, State* state);
+// 	bool checkClosureStateConflict(vector<ClosureState*> states, vector<State*> state);
+// 	void varepsilonClosure(ClosureState* before);
+// 	string path;
+// 	vector<State*> m_states;
+// 	vector<DetermineState*> determine_state;
+// };
 
 
 class Lexer
