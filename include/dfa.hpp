@@ -26,11 +26,17 @@ typedef std::map<int, std::map<char, std::vector<int>>> NFATable;
 
 class NFAToDFA {
     protected:
+        // 初始状态
         int _init_state;
+        // 全部状态数
         int _total_states;
+        // 最终状态
         std::vector<int> _final_states;
+        // 字符表
         std::vector<char> _alphabet;
+        // NFA 状态表
         NFATable _nfa_state_table;
+        // DFA 状态表
         DFATable _dfa_state_table;
 
         // 初始化 DFA state

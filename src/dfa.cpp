@@ -101,7 +101,23 @@ void NFAToDFA::nfa_determine() {
         _dfa_state_table[k].marked = true;
 
         for(auto w = _alphabet.begin(); w != _alphabet.end() - 1; w++) {
-
+            // 移动某字符获取到的状态
+            std::vector<int> theMove = move(_dfa_state_table[k], *w, _nfa_state_table);
+            // 将移动字符获取的状态 epilision
+            std::vector<int> alphaMove = eclosure(theMove, _nfa_state_table);
+            // 查看状态是否重复
+            int j = dfa_state_contain(alphaMove, _dfa_state_table);
+            if(j >= 0) {
+                _dfa_state_table[k].moves[*w] = j;
+            }else {
+                if(!alphaMove.empty()) {
+                    DFAState new_state = new_dfa_state(false, alphaMove);
+                    _dfa_state_table[current_dfa_state_num] = new_state;
+                    _dfa_state_table[k].moves[*w] = current_dfa_state_num;
+                }else {
+                    _dfa_state_table[k].moves[*w] = -1;
+                }
+            }
         }
     }
 }
@@ -169,13 +185,13 @@ void NFAToDFA::read_file(std::string filename) {
         * INITIALIZE NFA STATES
         *************************************/
 
-        //READ IN THE ALPHABET
+        // 获取字母
         std::getline(myfile, line);
         std::string trash;
         char move;
         std::istringstream alphabet = std::istringstream(line);
 
-        //consume the "state" word
+        // 将 "state" 消耗掉
         alphabet >> trash;
 
         while(alphabet >> move){
