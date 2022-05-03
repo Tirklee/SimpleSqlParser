@@ -102,7 +102,7 @@ void NFAToDFA::nfa_determine() {
 
         for(auto w = _alphabet.begin(); w != _alphabet.end() - 1; w++) {
             // 移动某字符获取到的状态
-            std::vector<int> theMove = move(_dfa_state_table[k], *w, _nfa_state_table);
+            std::vector<int> theMove = move(_dfa_state_table[k].states, *w, _nfa_state_table);
             // 将移动字符获取的状态 epilision
             std::vector<int> alphaMove = eclosure(theMove, _nfa_state_table);
             // 查看状态是否重复
@@ -120,6 +120,10 @@ void NFAToDFA::nfa_determine() {
             }
         }
     }
+}
+
+void NFAToDFA::dfa_minialize() {
+
 }
 
 void NFAToDFA::read_file(std::string filename) {
