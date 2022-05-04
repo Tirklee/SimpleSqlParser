@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <queue>
+#include <optional>
 
 
 const char OPENING_BRACKET = '{';
@@ -47,10 +48,15 @@ class NFAToDFA {
         std::vector<int> _dfa_final_states;
 
         void print_vec(std::vector<int> vec);
+        void print_vec_vec(std::vector<std::vector<int>> vec);
+        // 给定 key 擦除
+        void erase_vec_vec(std::vector<std::vector<int>> &vec, std::vector<int> key);
         // 初始化 DFA state
         DFAState new_dfa_state(bool mark, std::vector<int> s);
         // 是否包含某个 key
         bool vector_contain(std::vector<int> vec, int key);
+        // 返回包含该 key 的索引
+        int find_key_in_vec(std::vector<std::vector<int>> vec, int key);
         // 查看是否有没有被标记的状态
         int is_any_unmarked(DFATable dfa_table);
         // 查看 DFA Table 中是否有该状态
@@ -67,18 +73,11 @@ class NFAToDFA {
         // NFA 确定化
         void nfa_determine();
         // DFA 最小化
-        void dfa_minialize(DFATable& dfa_table, NFATable& nfa_table);
+        std::vector<std::vector<int>> dfa_minialize();
         // 打印 DFA 终态
-        void print_dfa_final_state(){
-            std::vector<int> final_states = find_final_dfa();
-            print_vec(final_states);
-            std::cout<< "\n";
-            for(size_t i = 0; i < final_states.size(); i++) {
-                std::cout<< "State " << final_states[i] << ":";
-                print_vec(_dfa_state_table[final_states[i]].states);
-                std::cout<< "\n";
-            }
-        }
+        void print_dfa_final_state();
+        // 打印 DFA 表
+        void print_dfa_table();
         // 构造函数
         NFAToDFA(std::string filename){ read_file(filename); }
         // 析构函数

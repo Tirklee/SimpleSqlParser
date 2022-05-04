@@ -59,12 +59,3 @@
 // 	return 0;
 // }
 
-
-#include "dfa.hpp"
-
-int main() {
-	// std::cout<< "Hello World!\n";
-	NFAToDFA nfa_to_dfa = NFAToDFA("examples/dfa_test.txt");
-	nfa_to_dfa.nfa_determine();
-	nfa_to_dfa.print_dfa_final_state();
-}
