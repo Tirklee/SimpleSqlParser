@@ -6,7 +6,9 @@ SRCS      	:= $(shell find $(SRC_DIR) -name *.cpp)
 OBJS      	:= $(BUILD_DIR)/lexer.o \
 			   $(BUILD_DIR)/dfa.o \
 			   $(BUILD_DIR)/dfa_example.o \
-			   $(BUILD_DIR)/main.o
+			   $(BUILD_DIR)/main.o \
+			#    $(BUILD_DIR)/utils.o \
+			#    $(BUILD_DIR)/GrammaAnalyse.o 
 
 CXX			:= g++
 CXXFLAGS  	:= -g -Wall -Werror -std=c++17

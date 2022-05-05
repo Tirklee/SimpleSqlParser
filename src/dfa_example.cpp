@@ -1,6 +1,6 @@
 #include "dfa.hpp"
 
-int main() {
+int dfa_example() {
 	NFAToDFA nfa_to_dfa = NFAToDFA("examples/dfa_test2.txt");
 	nfa_to_dfa.nfa_determine();
 	nfa_to_dfa.print_dfa_final_state();
@@ -20,4 +20,5 @@ int main() {
         std::cout<<"\n";
     }
     std::cout<<"\n";
+    return 0;
 }

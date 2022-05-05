@@ -403,7 +403,7 @@ void getLR1(map<noterminal_symbol_t, grammaNode> nodes, LR1Element**& table, int
 			ClosureState* new_state = new ClosureState;
 			new_state->from_element = element;
 			new_state->parent = state;
-			for(int k=i; k<state->elements.size(); k++)
+			for(size_t k = i; k<state->elements.size(); k++)
 			{
 				if(!state->elements[k].needConclusion() && state->elements[k].right.elements[state->elements[k].split_pos].intValue() == element.intValue())
 				{
@@ -472,7 +472,7 @@ void getLR1(map<noterminal_symbol_t, grammaNode> nodes, LR1Element**& table, int
 		}
 	}
 	// 最后要free
-	for(int i=0; i<table_template.size(); i++)
+	for(size_t i=0; i < table_template.size(); i++)
 	{
 		delete table_template[i];
 	}
@@ -480,7 +480,7 @@ void getLR1(map<noterminal_symbol_t, grammaNode> nodes, LR1Element**& table, int
 
 bool checkConflict(ClosureElement element, vector<ClosureElement>& elements)
 {
-	for(int i=0; i<elements.size(); i++)
+	for(size_t i = 0; i<elements.size(); i++)
 	{
 		if(elements[i] == element)
 		{
