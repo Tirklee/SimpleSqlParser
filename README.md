@@ -15,4 +15,6 @@ make dfa
 ```
 
 ## References
+- [c4](https://github.com/rswier/c4)
 - [write-a-C-interpreter](https://github.com/lotabout/write-a-C-interpreter)
+- [nfa-to-dfa](https://github.com/etnichols/nfa-to-dfa)
