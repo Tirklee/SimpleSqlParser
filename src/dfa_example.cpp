@@ -1,7 +1,7 @@
 #include "dfa.hpp"
 
 int main() {
-	NFAToDFA nfa_to_dfa = NFAToDFA("examples/dfa_test.txt");
+	NFAToDFA nfa_to_dfa = NFAToDFA("examples/dfa_test2.txt");
 	nfa_to_dfa.nfa_determine();
 	nfa_to_dfa.print_dfa_final_state();
     std::cout<<"DFA Determinate: \n";

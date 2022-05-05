@@ -235,10 +235,6 @@ std::vector<std::vector<int>> NFAToDFA::dfa_minialize() {
                     }
                 }
             }
-            // std::cout<< "A: ";
-            // print_vec(set_a);
-            // std::cout<< "B: ";
-            // print_vec(set_b);
             if(!b.has_value()) {
                 // 如果只有一个集合的话不动
             }else{
@@ -249,8 +245,6 @@ std::vector<std::vector<int>> NFAToDFA::dfa_minialize() {
                 dfa_min_ans.push_back(set_a);
                 dfa_min_ans.push_back(set_b);
             }
-            // std::cout<< "Set: \n";
-            // print_vec_vec(dfa_min_ans);
         }
         // 将所有得到的序列 push 进队列进行下一次 move
         for(auto &i: dfa_min_ans) {
