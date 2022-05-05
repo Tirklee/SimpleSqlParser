@@ -79,9 +79,6 @@ bool Lexer::next(bool show) {
                     // 将指针向后移 3 位
                     src += 3;
                     memcpy(nameBuffer + (src - last_pos), buf, 3);
-                }else {
-                    this->token_type = TokenType::Invalid;
-                    goto OUT;
                 }
             }
             // 从符号表中查找是否有对应的符号名
@@ -466,3 +463,4 @@ bool Lexer::printToken()
     }
 	return false;
 } 
+
