@@ -206,49 +206,50 @@ std::vector<std::vector<int>> NFAToDFA::dfa_minialize() {
     for(auto &ele: _alphabet) {
         // 遍历所有字母
         // 查看某个子集所有元素 move 后仍属一个集合
-        while(!dfa_partiation.empty()) {
-            // 从队列中取出一个集合
-            auto set = dfa_partiation.front();
-            dfa_partiation.pop();
-            std::vector<int> set_a;
-            std::vector<int> set_b;
-            std::optional<int> a;
-            std::optional<int> b;
-            for(auto &state: set) {
-                // 遍历每个子集的状态
-                // 获取到 move 后的状态
-                int move_state = _dfa_state_table[state].moves[ele];
-                int move_set = find_key_in_vec(dfa_min_ans, move_state);
-                if(!a.has_value()) {
-                    a.emplace(move_set);
-                    set_a.push_back(state);
-                }else{
-                    if(move_set == a.value()) {
+        if(ele != 'E') {
+            while(!dfa_partiation.empty()) {
+                // 从队列中取出一个集合
+                auto set = dfa_partiation.front();
+                dfa_partiation.pop();
+                std::vector<int> set_a;
+                std::vector<int> set_b;
+                std::optional<int> a;
+                std::optional<int> b;
+                for(auto &state: set) {
+                    // 遍历每个子集的状态
+                    // 获取到 move 后的状态
+                    int move_state = _dfa_state_table[state].moves[ele];
+                    int move_set = find_key_in_vec(dfa_min_ans, move_state);
+                    if(!a.has_value()) {
+                        a.emplace(move_set);
                         set_a.push_back(state);
-                    }else {
-                        if(!b.has_value()) {
-                            b.emplace(move_set);
-                            set_b.push_back(state);
-                        }else{
-                            set_b.push_back(state);
+                    }else{
+                        if(move_set == a.value()) {
+                            set_a.push_back(state);
+                        }else {
+                            if(!b.has_value()) {
+                                b.emplace(move_set);
+                                set_b.push_back(state);
+                            }else{
+                                set_b.push_back(state);
+                            }
                         }
                     }
                 }
+                if(!b.has_value()) {
+                    // 如果只有一个集合的话不动
+                }else{
+                    erase_vec_vec(dfa_min_ans, set);
+                    dfa_partiation.push(set_a);
+                    dfa_partiation.push(set_b);
+                    dfa_min_ans.push_back(set_a);
+                    dfa_min_ans.push_back(set_b);
+                }
             }
-            if(!b.has_value()) {
-                // 如果只有一个集合的话不动
-            }else{
-                // dfa_min_ans.erase(dfa_min_ans.begin());
-                erase_vec_vec(dfa_min_ans, set);
-                dfa_partiation.push(set_a);
-                dfa_partiation.push(set_b);
-                dfa_min_ans.push_back(set_a);
-                dfa_min_ans.push_back(set_b);
+            // 将所有得到的序列 push 进队列进行下一次 move
+            for(auto &i: dfa_min_ans) {
+                dfa_partiation.push(i);
             }
-        }
-        // 将所有得到的序列 push 进队列进行下一次 move
-        for(auto &i: dfa_min_ans) {
-            dfa_partiation.push(i);
         }
     }
     return dfa_min_ans;
