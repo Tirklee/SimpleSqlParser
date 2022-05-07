@@ -282,7 +282,7 @@ bool Lexer::printToken()
                 printf("INT\t<INT, %d>\n", (int)this->token_val.value);
                 break;
             case TokenType::Str:
-                printf("STR\t<Str, 0x%lx>\n", (size_t)this->token_val.str_ptr);
+                printf("STRING\t<STRING, 0x%lx>\n", (size_t)this->token_val.str_ptr);
                 printf("%s\n", (char*)this->token_val.str_ptr);
                 break;
             case TokenType::Idn:
