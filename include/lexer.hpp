@@ -30,6 +30,7 @@ private:
     std::optional<char*> name;
     std::vector<std::string> keywords_name;
     Token parser_token; // 传输给 parser 的 token
+    FILE* ofstream;
     // 添加关键字
     void add_keywords();
 	bool printToken();

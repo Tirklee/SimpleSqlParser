@@ -10,7 +10,7 @@ OBJS      	:= $(BUILD_DIR)/lexer.o \
 			#    $(BUILD_DIR)/GrammaAnalyse.o 
 
 CXX			:= g++
-CXXFLAGS  	:= -g -Wall -Werror -std=c++17 -D DFA
+CXXFLAGS  	:= -g -Wall -Werror -std=c++17 -D LEXER
 
 .PHONY: run clean
 
@@ -21,7 +21,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@$(CXX) $(OBJS) -o $(BUILD_DIR)/main
 
 run: $(OBJS)
-	@./build/main
+	@./build/main examples/test0B.txt
 
 
 clean:

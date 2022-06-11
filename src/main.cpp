@@ -61,7 +61,10 @@ int main(int argc, char** argv)
     // 对词法分析器进行初始化
 	Lexer lexer;
     lexer.init();
-    FILE* file = fopen("examples/test0B.txt", "r");
+	if(argc < 2){
+		return -1;
+	}
+    FILE* file = fopen(argv[1], "r");
     if(file){
         char* buf = new char[512];
         fread(buf, 1, 512, file);
